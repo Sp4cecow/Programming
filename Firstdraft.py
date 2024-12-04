@@ -8,7 +8,7 @@ pygame.init()
 # Screen dimensions
 width, height = 600, 400
 block_size = 20  # Size of the snake block
-fps = 15  # Frames per second
+fps = 5  # Frames per second
 
 # Colors
 white = (255, 255, 255)
@@ -16,6 +16,10 @@ black = (0, 0, 0)
 red = (200, 0, 0)
 green = (0, 200, 0)
 blue = (0, 0, 255)
+
+#levels 
+level = 1
+score_to_next_level = 10 # the score increasews every ten levels
 
 # Initialize the screen
 screen = pygame.display.set_mode((width, height))
@@ -29,9 +33,11 @@ font_style = pygame.font.SysFont("bahnschrift", 25)
 score_font = pygame.font.SysFont("comicsansms", 35)
 
 # Display the score
-def display_score(score):
-    value = score_font.render(f"Score: {score}", True, green)
-    screen.blit(value, [0, 0])
+def display_score(score, level):
+    score_text = score_font.render(f"Score: {score}", True, green)
+    level_text = score_font.render(f"Level: {level}", True, blue)
+    screen.blit(score_text, [0, 0])
+    screen.blit(level_text, [0, 30])
 
 # Display a message
 def message(msg, color):
@@ -40,6 +46,8 @@ def message(msg, color):
 
 # Main game loop
 def game_loop():
+    global fps, level
+    
     game_over = False
     game_close = False
 
@@ -54,7 +62,7 @@ def game_loop():
     food_y = round(random.randrange(0, height - block_size) / block_size) * block_size
 
     while not game_over:
-
+       
         while game_close:
             screen.fill(black)
             message("You lost! Press Q-Quit or C-Play Again", red)
@@ -106,7 +114,13 @@ def game_loop():
         for segment in snake_list:
             pygame.draw.rect(screen, green, [segment[0], segment[1], block_size, block_size])
 
-        display_score(snake_length - 1)
+        # Level progression
+        if (snake_length - 1) % score_to_next_level == 0 and snake_length > 1:
+            level += 1
+            fps += 5  # Increase speed
+
+        
+        display_score(snake_length - 1, level)
         pygame.display.update()
 
         if x == food_x and y == food_y:
