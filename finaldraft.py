@@ -194,3 +194,80 @@ def game_loop():
 
 # Run the game
 game_loop()
+
+#tests
+import unittest
+import random
+import pygame
+
+# Assuming the functions generate_food, generate_obstacles, and game_loop are available
+# Also assuming check_collision_with_obstacles is available
+
+class TestSnakeGame(unittest.TestCase):
+
+    def setUp(self):
+        self.grid_width = 30
+        self.grid_height = 20
+        self.block_size = 20
+        self.snake_list = [(100, 100), (120, 100), (140, 100)]
+        self.food_x, self.food_y = 60, 80
+
+    def test_food_and_obstacles_not_collide(self):
+        # Generate obstacles
+        level = 3
+        obstacles = generate_obstacles(level, self.grid_width, self.grid_height, self.snake_list, self.food_x, self.food_y)
+
+        # Generate food
+        food_x, food_y = generate_food(self.grid_width, self.grid_height, obstacles)
+
+        # Check that the food is not placed on any obstacle
+        self.assertNotIn((food_x, food_y), obstacles, "Food spawned on an obstacle")
+
+    def test_food_and_snake_not_collide(self):
+        # Generate food
+        obstacles = []
+        food_x, food_y = generate_food(self.grid_width, self.grid_height, obstacles)
+
+        # Check that the food is not placed on the snake
+        self.assertNotIn((food_x, food_y), self.snake_list, "Food spawned on the snake")
+
+    def test_obstacles_and_snake_not_collide(self):
+        # Generate obstacles
+        level = 3
+        obstacles = generate_obstacles(level, self.grid_width, self.grid_height, self.snake_list, self.food_x, self.food_y)
+
+        # Check that no obstacle is placed on the snake
+        for obstacle in obstacles:
+            self.assertNotIn(obstacle, self.snake_list, "Obstacle spawned on the snake")
+
+    def test_obstacles_and_food_not_collide(self):
+        # Generate obstacles
+        level = 3
+        obstacles = generate_obstacles(level, self.grid_width, self.grid_height, self.snake_list, self.food_x, self.food_y)
+
+        # Check that no obstacle is placed on the food
+        self.assertNotIn((self.food_x, self.food_y), obstacles, "Obstacle spawned on the food")
+    
+    def test_snake_spawns_correctly(self):
+        # Check that the snake spawns in the initial position
+        expected_initial_snake = [(100, 100), (120, 100), (140, 100)]
+        self.assertEqual(self.snake_list, expected_initial_snake, "Snake did not spawn in the correct initial position")
+        
+    def test_food_spawns_correctly(self):
+        # Check that the food spawns in the initial position
+        expected_initial_food = (60, 80)
+        self.assertEqual((self.food_x, self.food_y), expected_initial_food, "Food did not spawn in the correct initial position")
+
+    def test_game_ends_on_obstacle_collision(self):
+        # Simulate game scenario where the snake collides with an obstacle
+        snake_head = [100, 100]
+        obstacles = [(100, 100), (120, 120), (140, 140)]
+
+        # Check collision
+        collision = check_collision_with_obstacles(snake_head, obstacles)
+
+        # Ensure game ends on collision
+        self.assertTrue(collision, "Game did not end on obstacle collision")
+
+if __name__ == "__main__":
+    unittest.main()
